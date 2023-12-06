@@ -1,7 +1,8 @@
 import {Injectable, OnModuleDestroy, OnModuleInit} from '@nestjs/common';
 import { PrismaClient } from '@prisma/client'
-import { ProductCategory } from '@prisma/client';
 import {ConfigService} from "@nestjs/config";
+import {PatchEmployeeDto} from "../employees/dto";
+import {NewProductDto} from "../products/dto/new-product.dto";
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
@@ -94,7 +95,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     }
 
     //Patch employee by ID
-    async patchEmployee(id: number, employeeInfo: any){
+    async patchEmployee(id: number, employeeData: PatchEmployeeDto){
         try {
             //Check if employee exists
             await this.getEmployee(id)
@@ -105,12 +106,14 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
                     id: id
                 },
                 data: {
-                    first_name: employeeInfo.firstName,
-                    last_name: employeeInfo.lastName,
-                    middle_name: employeeInfo.middleName,
-                    position: employeeInfo.position
+                    first_name: employeeData.firstName,
+                    last_name: employeeData.lastName,
+                    middle_name: employeeData.middleName,
+                    position: employeeData.position
                 }
             })
+
+            return employee
         }
         catch (error) {
             throw error
@@ -118,13 +121,56 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     }
 
     //Get orders by ID
+    async getOrder(id: number){
+        const order = await this.orders.findUnique({
+            where: {
+                id: id
+            }
+        })
 
+        //Check if order exists
+        if (!order){
+            throw new Error(`Order with id:${id} doesn't exists`)
+        }
+
+        return order
+    }
 
     //Delete orders by ID
+    async deleteOrder(id: number){
+        try {
+            await this.getOrder(id)
 
+            await this.productsOnOrders.deleteMany({
+                where: {
+                    ordersId: id
+                }
+            })
+
+            const order = this.orders.delete({
+                where: {
+                    id: id
+                }
+            })
+
+            return order
+        }
+        catch (error) {
+            throw error
+        }
+    }
 
     //Post new product
-
+    async postProduct(productData: NewProductDto){
+        return this.products.create({
+            data: {
+                name: productData.name,
+                category: productData.category,
+                amount: productData.amount,
+                price: productData.price
+            }
+        })
+    }
 
 
     //Disconnecting
