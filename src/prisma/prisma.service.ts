@@ -121,10 +121,44 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     }
 
     //Get orders by ID
+    async getOrder(id: number){
+        const order = await this.orders.findUnique({
+            where: {
+                id: id
+            }
+        })
 
+        //Check if order exists
+        if (!order){
+            throw new Error(`Order with id:${id} doesn't exists`)
+        }
+
+        return order
+    }
 
     //Delete orders by ID
+    async deleteOrder(id: number){
+        try {
+            await this.getOrder(id)
 
+            await this.productsOnOrders.deleteMany({
+                where: {
+                    ordersId: id
+                }
+            })
+
+            const order = this.orders.delete({
+                where: {
+                    id: id
+                }
+            })
+
+            return order
+        }
+        catch (error) {
+            throw error
+        }
+    }
 
     //Post new product
 
