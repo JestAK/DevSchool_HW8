@@ -4,10 +4,36 @@ import {CustomersService} from "./customers.service";
 @Controller('customers')
 export class CustomersController {
 
-    constructor(private customersService: CustomersService) {
+    @Get()
+    getAllCustomers(){
+        try{
+            return this.customersService.getAllCustomers()
+        }
+        catch (error) {
+            throw error
+        }
     }
+
+    constructor(private customersService: CustomersService) {}
+
     @Get(':customerId')
-    printer(@Param('customerId', ParseIntPipe) customerId: number){
-        return `<h1>IDI NAHUI customer ${customerId}</h1>`
+    getCustomer(@Param('customerId', ParseIntPipe) customerId: number){
+        try {
+            return this.customersService.getCustomer(customerId)
+        }
+        catch (error){
+            throw error;
+        }
     }
+
+    @Get(':customerId/orders')
+    getCustomerOrders(@Param('customerId', ParseIntPipe) customerId: number){
+        try {
+            return this.customersService.getCustomerOrders(customerId)
+        }
+        catch (error) {
+            throw error
+        }
+    }
+
 }
