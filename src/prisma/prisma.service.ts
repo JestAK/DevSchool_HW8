@@ -1,8 +1,8 @@
 import {Injectable, OnModuleDestroy, OnModuleInit} from '@nestjs/common';
 import { PrismaClient } from '@prisma/client'
-import { ProductCategory } from '@prisma/client';
 import {ConfigService} from "@nestjs/config";
 import {PatchEmployeeDto} from "../employees/dto";
+import {NewProductDto} from "../products/dto/new-product.dto";
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
@@ -161,7 +161,16 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     }
 
     //Post new product
-
+    async postProduct(productData: NewProductDto){
+        return this.products.create({
+            data: {
+                name: productData.name,
+                category: productData.category,
+                amount: productData.amount,
+                price: productData.price
+            }
+        })
+    }
 
 
     //Disconnecting
