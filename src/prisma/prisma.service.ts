@@ -2,6 +2,7 @@ import {Injectable, OnModuleDestroy, OnModuleInit} from '@nestjs/common';
 import { PrismaClient } from '@prisma/client'
 import { ProductCategory } from '@prisma/client';
 import {ConfigService} from "@nestjs/config";
+import {PatchEmployeeDto} from "../employees/dto";
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
@@ -94,7 +95,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     }
 
     //Patch employee by ID
-    async patchEmployee(id: number, employeeInfo: any){
+    async patchEmployee(id: number, employeeData: PatchEmployeeDto){
         try {
             //Check if employee exists
             await this.getEmployee(id)
@@ -105,12 +106,14 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
                     id: id
                 },
                 data: {
-                    first_name: employeeInfo.firstName,
-                    last_name: employeeInfo.lastName,
-                    middle_name: employeeInfo.middleName,
-                    position: employeeInfo.position
+                    first_name: employeeData.firstName,
+                    last_name: employeeData.lastName,
+                    middle_name: employeeData.middleName,
+                    position: employeeData.position
                 }
             })
+
+            return employee
         }
         catch (error) {
             throw error
